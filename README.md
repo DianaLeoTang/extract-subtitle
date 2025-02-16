@@ -17,8 +17,16 @@ brew install ffmpeg            # macOS
 pip install pytesseract pillow
 
 pip install tesseract-ocr-chi-sim  # 安装简体中文语言包
+
 sudo apt-get install tesseract-ocr-chi-tra  # 安装繁体中文语言包
 
 brew install tesseract-lang
 
+ffmpeg -i /Users/aaa/extract-subtitle/videos/01.mp4 -vf "fps=1" /Users/aaa/extract-subtitle/01/output_frame_%04d.png
 
+
+在终端中，进入脚本文件所在的目录，并运行以下命令为脚本添加可执行权限：
+chmod +x main.sh
+
+执行脚本来批量处理视频：
+./main.sh
