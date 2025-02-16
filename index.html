@@ -1,0 +1,72 @@
+<!--
+ * @Author: Diana Tang
+ * @Date: 2025-02-15 21:11:49
+ * @LastEditors: Diana Tang
+ * @Description: some description
+ * @FilePath: /extract-subtitle/index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to PPT</title>
+</head>
+<body>
+    <video id="video" width="640" height="360" controls>
+        <source src="./videos/01.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    <button id="generatePPT">Generate PPT</button>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/libs/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.min.js"></script>
+    <script>
+        document.getElementById('generatePPT').addEventListener('click', function () {
+            const video = document.getElementById('video');
+            const pptx = new PptxGenJS();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Calculate duration in seconds and every 5 seconds take a snapshot
+            const duration = video.duration; // Total video duration in seconds
+
+            video.currentTime = 0; // Ensure we start from the beginning
+
+            function captureAndCreateSlide(time) {
+                return new Promise((resolve) => {
+                    video.currentTime = time; // Set video time to capture the snapshot
+
+                    video.onseeked = function() {
+                        // Draw the current video frame to canvas
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        // Convert canvas to image data
+                        const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+                        // Create a new slide with the captured frame as background
+                        let slide = pptx.addSlide();
+                        slide.addImage({
+                            data: imgData,
+                            x: 0.5, y: 0.5, w: 9, h: 6.75  // Adjust image size as needed
+                        });
+                        // slide.background = { data: imgData };
+
+                        resolve();
+                    };
+                });
+            }
+
+            async function generatePPT() {
+                for (let i = 0; i < duration; i += 5) {
+                    await captureAndCreateSlide(i);
+                }
+
+                // Save the PPT file
+                pptx.writeFile({ fileName: "video_to_01.pptx" });
+            }
+
+            generatePPT();
+        });
+    </script>
+</body>
+</html>
